@@ -106,8 +106,8 @@ button {
     color: red;
 }
 .assignment.far .assignment-due {
-    color: red;
+    color: green;
 }
-.assignment.done .assignment-due{
-    color: red;
+.assignment.done .assignment-due {
+    color: blue;
 }
