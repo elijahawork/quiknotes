@@ -102,12 +102,12 @@ button {
     font-weight: bold;
     font-family: 'Roboto', sans-serif;
 }
-.assignment-due.soon {
+.assignment.soon .assignment-due{
     color: red;
 }
-.assignment-due.far {
+.assignment.far .assignment-due {
     color: red;
 }
-.assignment-due.done {
+.assignment.done .assignment-due{
     color: red;
 }
