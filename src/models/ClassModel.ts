@@ -12,4 +12,12 @@ export class ClassModel extends DataModel {
         this.assignments = assignments;
         this.content = content;
     }
+
+    public stringify() {
+        return JSON.stringify(this);
+    }
+    public static from(str: string): ClassModel {
+        const jsonOBJ = JSON.parse(str) as ClassModel;
+        return new ClassModel(jsonOBJ.name, jsonOBJ.assignments, jsonOBJ.content);
+    }
 }
