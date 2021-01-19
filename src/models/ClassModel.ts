@@ -3,10 +3,10 @@ import { DataModel } from "./DataModel";
 
 export class ClassModel extends DataModel {
     name: string;
-    assignments: AssignmentModel[] = [];
+    assignments: number[] = [];
     content: string;
     
-    constructor(name: string, assignments: AssignmentModel[], content: string) {
+    constructor(name: string, assignments: number[], content: string) {
         super();
         this.name = name;
         this.assignments = assignments;
