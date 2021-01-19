@@ -1,3 +1,11 @@
+const addButtons = {
+    newClass: document.getElementById('add-new-class'),
+}
+
 export function main() {
-    console.log('Hello, world');
+    if (addButtons.newClass) {
+        addButtons.newClass.addEventListener('click', (ev) => {
+            
+        });
+    }
 }
