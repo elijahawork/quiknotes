@@ -38,9 +38,12 @@ export abstract class View<T extends keyof HTMLElementTagNameMap> {
         element.appendChild(this.el);
     }
 
+    public addEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLObjectElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
     public addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
         this.el.addEventListener(type, listener, options);
     }
+
+    public removeEventListener<K extends keyof HTMLElementEventMap>(type: K, listener: (this: HTMLObjectElement, ev: HTMLElementEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
     public removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void {
         this.el.removeEventListener(type, listener, options);
     }
