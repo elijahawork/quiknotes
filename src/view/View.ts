@@ -38,6 +38,13 @@ export abstract class View<T extends keyof HTMLElementTagNameMap> {
         element.appendChild(this.el);
     }
 
+    public addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
+        this.el.addEventListener(type, listener, options);
+    }
+    public removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void {
+        this.el.removeEventListener(type, listener, options);
+    }
+
     constructor(tagName: T, id?: string, className?: string) {
         this.el = document.createElement(tagName);
         this.id = id ?? '';
