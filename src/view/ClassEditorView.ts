@@ -18,7 +18,7 @@ export class ClassEditorView extends View<'div'> {
         super('div', id, 'class-editor-view');
         this.el.tabIndex = 0;
         this.el.style.fontSize = FONT_SIZE;
-        caret.matchHeight(FONT_SIZE);
+        caret.matchHeight(parseInt(FONT_SIZE));
         
         this.addEventListener('click', () => {
             this.reloadCursorPosition();
