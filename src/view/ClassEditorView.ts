@@ -10,54 +10,91 @@ const sizeTester = new SizeTester();
 
 export class ClassEditorView extends View<'div'> {
     private cursorPosition = 0;
+
+    private get heightAboveCursor(): number {
+        const clicked = this.el.children[this.currentLine];
+        console.log(clicked);
+        
+        const lineElementRect = clicked.getBoundingClientRect();
+        console.log(lineElementRect);
+        
+        return lineElementRect.y;
+    }
     private get currentLine(): number {
         return Math.floor(this.cursorPosition / LINE_CHAR_LIMIT);
     }
     
-    constructor(id?: string, className?: string) {
+    constructor(id?: string) {
         super('div', id, 'class-editor-view');
         this.el.tabIndex = 0;
         this.el.style.fontSize = FONT_SIZE;
         caret.matchHeight(parseInt(FONT_SIZE));
         
-        this.addEventListener('click', () => {
-            this.reloadCursorPosition();
-        });
+        // this.addEventListener('mousedown', () => {
+        //     this.reloadCursorPosition();
+        // });
 
         this.addEventListener('keydown', (ev) => {
             const { key } = ev;
             
             if (key === 'ArrowRight') {
-                this.cursorPosition++;
+                this.moveCaretForward();
             } else if (key === 'ArrowLeft') {
-                this.cursorPosition--;
+                this.moveCaretBackward();
             } else if (key === 'Backspace') {
-                this.content = this.content.substring(0, this.cursorPosition - 1) + this.content.substring(this.cursorPosition);
-                this.cursorPosition--;
+                this.removeCharacterBeforeCaret();
             } else if (key === 'ArrowDown') {
-                this.cursorPosition += LINE_CHAR_LIMIT;
+                this.moveCaretDown();
             } else if (key === 'ArrowUp') {
-                this.cursorPosition -= LINE_CHAR_LIMIT;
+                this.moveCaretUp();
             } else if (key.length === 1) {
-                this.content = this.content.substring(0, this.cursorPosition) + key + this.content.substr(this.cursorPosition);
-                this.cursorPosition++;
+                this.insertCharacterBeforeCursor(key);
+            } else if (key === 'Enter') {
+                this.insertCharacterBeforeCursor('\n');
+                this.moveCaretDown();
             }
 
             this.reloadCursorPosition();
         });
     }
     
-    reloadCursorPosition() {
-        console.log(this.cursorPosition, this.currentLine);
-        
+    private moveCaretDown() {
+        this.cursorPosition += LINE_CHAR_LIMIT;
+    }
+
+    private moveCaretUp() {
+        this.cursorPosition -= LINE_CHAR_LIMIT;
+        this.cursorPosition = Math.max(this.cursorPosition, 0);
+    }
+
+    private moveCaretForward() {
+        this.cursorPosition++;
+    }
+    private moveCaretBackward() {
+        this.cursorPosition--;
+        this.cursorPosition = Math.max(this.cursorPosition, 0);
+    }
+
+    private insertCharacterBeforeCursor(key: string) {
+        this.content = this.content.substring(0, this.cursorPosition) + key + this.content.substr(this.cursorPosition);
+        this.moveCaretForward();
+    }
+
+    private removeCharacterBeforeCaret() {
+        this.content = this.content.substring(0, this.cursorPosition - 1) + this.content.substring(this.cursorPosition);
+        this.moveCaretBackward();
+    }
+
+    private reloadCursorPosition() {
         const boundingRect = this.el.getBoundingClientRect();
         const viewOffsetX = boundingRect.left;
-        const viewOffsetY = boundingRect.top;
+        const viewOffsetY = this.heightAboveCursor;
 
-        caret.moveTo(viewOffsetX + this.getLeftPixelSize(), viewOffsetY + this.currentLine * parseInt(FONT_SIZE) + 1);
+        caret.moveTo(viewOffsetX + this.getLeftPixelSize(), viewOffsetY);
     }
-    getLeftPixelSize() {
+    private getLeftPixelSize() {
         const lineBeginning = this.currentLine * LINE_CHAR_LIMIT;
+        sizeTester.alignStyle(this);
         return sizeTester.getWidthOf(this.content.substring(lineBeginning, this.cursorPosition));
     }
 
@@ -65,39 +102,33 @@ export class ClassEditorView extends View<'div'> {
         return this.el.textContent ?? '';
     }
     set content(content: string) {
-        console.log(content);
-        
-        const splitContent = content.match(/(.|\n){80}|.+/g);
+        const splitContent = content.match(/\n|(.){80}|.+/g) ?? [''];
 
-        if (splitContent === null)
-            throw new Error('Invalid content');
+        const lines = Array.from(splitContent)
+        
+        this.clearContent();
+        
+        lines.forEach((lineContent, index) => {
+            const line = document.createElement('div');
+            line.innerHTML = lineContent;
+            this.el.appendChild(line);
 
-        const a = Array.from(splitContent)
-        
-        this.el.innerHTML = '';
-        
-        a.forEach((e, i) => {
-            const el = document.createElement('div');
-            el.innerHTML = e;
-            el.addEventListener('click', (ev) => {
-                console.log(i,'wasclicked');
-                
-                this.cursorPosition = LINE_CHAR_LIMIT * i;
-                
-                console.log(this.el.getBoundingClientRect().width + this.getLeftPixelSize(),'<',ev.clientX);
+            line.addEventListener('mousedown', (ev) => {
+                this.cursorPosition = LINE_CHAR_LIMIT * index;
                 
                 while (this.el.getBoundingClientRect().left + this.getLeftPixelSize() < ev.clientX) {
-                    console.log(this.el.getBoundingClientRect().width + this.getLeftPixelSize(),'<',ev.clientX);
-                    
-                    this.cursorPosition++;
+                    this.moveCaretForward();
                 }
 
                 this.reloadCursorPosition();
             });
-            this.el.appendChild(el);        
 
         });
 
+    }
+
+    private clearContent() {
+        this.el.innerHTML = '';
     }
 
     get fontSize() {
