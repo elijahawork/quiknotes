@@ -5,6 +5,7 @@ html, body {
     height: 100%;
     padding: 0;
     margin: 0;
+    overflow-y: hidden;
 }
 body {
     display: grid;
@@ -113,15 +114,18 @@ button {
 }
 .caret {
     width: 1px;
-    height: 10px;
+    height: 12px;
     background-color: black;
     position: absolute;
 }
 .size-tester {
     width: fit-content;
     height: fit-content;
+    white-space: pre;
 }
 .class-editor-view {
     width: 100%;
     height: 100%;
+    white-space: pre;
+    line-height: 12px;
 }
