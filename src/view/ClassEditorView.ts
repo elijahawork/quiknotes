@@ -12,28 +12,57 @@ export class ClassEditorView extends View<'div'> {
     private cursorPosition = 0;
 
     private get heightAboveCursor(): number {
-        const clicked = this.el.children[this.currentLine];
-        console.log(clicked);
-        
-        const lineElementRect = clicked.getBoundingClientRect();
-        console.log(lineElementRect);
-        
+        const lineElementClicked = this.el.children[this.currentLine];
+        const lineElementRect = lineElementClicked.getBoundingClientRect();
         return lineElementRect.y;
     }
-    private get currentLine(): number {
+    private get currentLine() {
+        const endingIndices = this.getLineEndingIndices();
+        for (let i = 0; i < endingIndices.length; i++) {
+            if (endingIndices[i] > this.cursorPosition) {
+                console.log('returning ', i, endingIndices[i-1], this.cursorPosition, endingIndices[i]);
+                console.log(this.children[i]);
+                
+                return i;
+            }
+        }
         return Math.floor(this.cursorPosition / LINE_CHAR_LIMIT);
     }
+    private getLineEndingIndices(): number[] {
+        const children = this.el.children;
+        const ar = [0];
+        for (let i = 0; i < children.length; i++) {
+            const child = children[i].textContent ?? '';
+            ar.push(ar[ar.length - 1] + child.length);
+        }
+        ar.shift();
+        return ar;
+    }
+
+    // private get currentLine(): number {
+    //     let lengthSoFar = 0;
+    //     const childrenLocation = Array.from(this.el.children).map(child => lengthSoFar += (child.textContent ?? '').length);
+        
+    //     for (let line = 0; line < childrenLocation.length; line++) {
+    //         console.log(childrenLocation[line],'<',this.cursorPosition);
+    //         console.log(line);
+            
+    //         if (childrenLocation[line] < this.cursorPosition) {
+    //             return line;
+    //         }
+    //     }
+        
+    //     throw new Error('Invalid');
+    // }
     
     constructor(id?: string) {
         super('div', id, 'class-editor-view');
+
         this.el.tabIndex = 0;
         this.el.style.fontSize = FONT_SIZE;
+
         caret.matchHeight(parseInt(FONT_SIZE));
         
-        // this.addEventListener('mousedown', () => {
-        //     this.reloadCursorPosition();
-        // });
-
         this.addEventListener('keydown', (ev) => {
             const { key } = ev;
             
@@ -51,7 +80,6 @@ export class ClassEditorView extends View<'div'> {
                 this.insertCharacterBeforeCursor(key);
             } else if (key === 'Enter') {
                 this.insertCharacterBeforeCursor('\n');
-                this.moveCaretDown();
             }
 
             this.reloadCursorPosition();
@@ -60,13 +88,16 @@ export class ClassEditorView extends View<'div'> {
     
     private moveCaretDown() {
         this.cursorPosition += LINE_CHAR_LIMIT;
+        const end = this.getLineEndingIndices()[this.currentLine];
+        console.log(this.cursorPosition, end);
+        
+        if (this.cursorPosition > end)
+            this.cursorPosition -= LINE_CHAR_LIMIT;
     }
-
     private moveCaretUp() {
         this.cursorPosition -= LINE_CHAR_LIMIT;
         this.cursorPosition = Math.max(this.cursorPosition, 0);
     }
-
     private moveCaretForward() {
         this.cursorPosition++;
     }
@@ -74,12 +105,10 @@ export class ClassEditorView extends View<'div'> {
         this.cursorPosition--;
         this.cursorPosition = Math.max(this.cursorPosition, 0);
     }
-
     private insertCharacterBeforeCursor(key: string) {
         this.content = this.content.substring(0, this.cursorPosition) + key + this.content.substr(this.cursorPosition);
         this.moveCaretForward();
     }
-
     private removeCharacterBeforeCaret() {
         this.content = this.content.substring(0, this.cursorPosition - 1) + this.content.substring(this.cursorPosition);
         this.moveCaretBackward();
@@ -97,34 +126,39 @@ export class ClassEditorView extends View<'div'> {
         sizeTester.alignStyle(this);
         return sizeTester.getWidthOf(this.content.substring(lineBeginning, this.cursorPosition));
     }
-
     get content() {
         return this.el.textContent ?? '';
     }
     set content(content: string) {
-        const splitContent = content.match(/\n|(.){80}|.+/g) ?? [''];
-
-        const lines = Array.from(splitContent)
+        const splitContent = content.match(/\n|.{0,80}/g) ?? [''];
+        
+        const lines = Array.from(splitContent);
         
         this.clearContent();
         
-        lines.forEach((lineContent, index) => {
+        lines.forEach((lineContent, lineNumber) => {
             const line = document.createElement('div');
             line.innerHTML = lineContent;
             this.el.appendChild(line);
-
+            
             line.addEventListener('mousedown', (ev) => {
-                this.cursorPosition = LINE_CHAR_LIMIT * index;
+                this.cursorPosition = this.indexOfBeginningOfLine(lineNumber);
                 
                 while (this.el.getBoundingClientRect().left + this.getLeftPixelSize() < ev.clientX) {
                     this.moveCaretForward();
                 }
-
+                
                 this.reloadCursorPosition();
             });
-
+            
         });
 
+    }
+    private indexOfBeginningOfLine(line: number): number {
+        const endingIndices = this.getLineEndingIndices();
+        console.log(line);
+        
+        return endingIndices[line - 1] ?? 0;
     }
 
     private clearContent() {
