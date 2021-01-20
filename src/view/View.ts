@@ -11,7 +11,7 @@ export abstract class View<T extends keyof HTMLElementTagNameMap> {
         return this._parent;
     } 
     public get children(): View<any>[] {
-        return Object.seal(this.children.slice(0));
+        return Object.seal(this._children.slice(0));
     }
 
     public addChild<E extends keyof HTMLElementTagNameMap, R extends View<E>>(child: R): R {
