@@ -20,6 +20,11 @@ export abstract class View<T extends keyof HTMLElementTagNameMap> {
         this.el.appendChild(child.el);
         return child;
     }
+    /**
+     * 
+     * @param child Child to remove
+     * Removes the child from both the DOM and array
+     */
     public removeChild<E extends keyof HTMLElementTagNameMap, R extends View<E>>(child: R): R {
         const index = this._children.indexOf(child);
         this.verifyValidIndex(index);
