@@ -1,14 +1,17 @@
 import { Caret } from "./Caret";
 import { SizeTester } from "./SizeTester";
+import { TextEditorLine } from "./TextEditorLine";
 import { View } from "./View";
 
 const FONT_SIZE = '17px';
 const LINE_CHAR_LIMIT = 80;
 
-const caret = new Caret();
-const sizeTester = new SizeTester();
+type Range = { begin: number, end: number };
 
 export class ClassEditorView extends View<'div'> {
+    private readonly caret = new Caret();
+    private readonly sizeTester = new SizeTester();
+
     private cursorPosition = 0;
 
     private get heightAboveCursor(): number {
@@ -16,44 +19,40 @@ export class ClassEditorView extends View<'div'> {
         const lineElementRect = lineElementClicked.getBoundingClientRect();
         return lineElementRect.y;
     }
-    private get currentLine() {
-        const endingIndices = this.getLineEndingIndices();
-        for (let i = 0; i < endingIndices.length; i++) {
-            if (endingIndices[i] > this.cursorPosition) {
-                console.log('returning ', i, endingIndices[i-1], this.cursorPosition, endingIndices[i]);
-                console.log(this.children[i]);
-                
-                return i;
-            }
-        }
-        return Math.floor(this.cursorPosition / LINE_CHAR_LIMIT);
-    }
-    private getLineEndingIndices(): number[] {
-        const children = this.el.children;
-        const ar = [0];
-        for (let i = 0; i < children.length; i++) {
-            const child = children[i].textContent ?? '';
-            ar.push(ar[ar.length - 1] + child.length);
-        }
-        ar.shift();
-        return ar;
-    }
+    private get currentLine(): number {
+        const ranges = this.getLineRanges();
+        
+        const line = ranges.findIndex((range) => range.begin <= this.cursorPosition && this.cursorPosition < range.end);
 
-    // private get currentLine(): number {
-    //     let lengthSoFar = 0;
-    //     const childrenLocation = Array.from(this.el.children).map(child => lengthSoFar += (child.textContent ?? '').length);
+        if (line === -1)
+            throw new RangeError(`Cursor position ${this.cursorPosition} out of bounds. No line matching`);
         
-    //     for (let line = 0; line < childrenLocation.length; line++) {
-    //         console.log(childrenLocation[line],'<',this.cursorPosition);
-    //         console.log(line);
-            
-    //         if (childrenLocation[line] < this.cursorPosition) {
-    //             return line;
-    //         }
-    //     }
+        return line;
+    }
+    private getLineRanges(): Range[] {
+        if (this.children && !this.children.every(child => child instanceof TextEditorLine))
+            throw new TypeError('Every child must be of type TextEditorLine');
+
+        const children = this.children as TextEditorLine[];
+        const ranges: Range[] = [{ begin: 0, end: children[0].length }];
         
-    //     throw new Error('Invalid');
-    // }
+        for (let i = 1; i < children.length; i++) {
+            const line = children[i];
+            const begin = ranges[i - 1].end;
+            const end = begin + line.length;
+            const range: Range = { begin, end };
+            ranges.push(range);
+        }
+        
+        return ranges;
+    }
+    private getCharacterCountBehindLineBeginning(line: number): number {
+        let index = 0;
+        for (let i = 0; i < line; i++)
+            index += this.el.children[i].textContent!.length;
+        return index;
+        
+    }
     
     constructor(id?: string) {
         super('div', id, 'class-editor-view');
@@ -61,8 +60,9 @@ export class ClassEditorView extends View<'div'> {
         this.el.tabIndex = 0;
         this.el.style.fontSize = FONT_SIZE;
 
-        caret.matchHeight(parseInt(FONT_SIZE));
-        
+        this.caret.matchHeight(parseInt(FONT_SIZE));
+        this.sizeTester.alignStyle(this);
+
         this.addEventListener('keydown', (ev) => {
             const { key } = ev;
             
@@ -88,8 +88,7 @@ export class ClassEditorView extends View<'div'> {
     
     private moveCaretDown() {
         this.cursorPosition += LINE_CHAR_LIMIT;
-        const end = this.getLineEndingIndices()[this.currentLine];
-        console.log(this.cursorPosition, end);
+        const end = this.getLineRanges()[this.currentLine].end;
         
         if (this.cursorPosition > end)
             this.cursorPosition -= LINE_CHAR_LIMIT;
@@ -106,7 +105,7 @@ export class ClassEditorView extends View<'div'> {
         this.cursorPosition = Math.max(this.cursorPosition, 0);
     }
     private insertCharacterBeforeCursor(key: string) {
-        this.content = this.content.substring(0, this.cursorPosition) + key + this.content.substr(this.cursorPosition);
+        this.content = this.content.substring(0, this.cursorPosition) + key + this.content.substring(this.cursorPosition);
         this.moveCaretForward();
     }
     private removeCharacterBeforeCaret() {
@@ -119,46 +118,73 @@ export class ClassEditorView extends View<'div'> {
         const viewOffsetX = boundingRect.left;
         const viewOffsetY = this.heightAboveCursor;
 
-        caret.moveTo(viewOffsetX + this.getLeftPixelSize(), viewOffsetY);
+        const left = this.getWidthOfTextContentBehindCursor();
+
+        const paddedLeft = viewOffsetX + left;
+        
+        this.caret.moveTo(paddedLeft, viewOffsetY);
     }
-    private getLeftPixelSize() {
-        const lineBeginning = this.currentLine * LINE_CHAR_LIMIT;
-        sizeTester.alignStyle(this);
-        return sizeTester.getWidthOf(this.content.substring(lineBeginning, this.cursorPosition));
+    private getWidthOfTextContentBehindCursor() {
+        const lineBeginning = this.getLineRanges()[this.currentLine].begin;
+        const widthOfLine = this.sizeTester.getWidthOf(this.content.substring(lineBeginning, this.cursorPosition));
+        return widthOfLine;
     }
     get content() {
         return this.el.textContent ?? '';
     }
     set content(content: string) {
-        const splitContent = content.match(/\n|.{0,80}/g) ?? [''];
-        
-        const lines = Array.from(splitContent);
+        const lineContentArray = this.getLineContentArrayFromText(content);
+        console.log({lineContentArray});
         
         this.clearContent();
         
+        this.loadLinesIntoView(lineContentArray);
+    }
+    private loadLinesIntoView(lines: string[]) {
+        const caret = this.caret;
         lines.forEach((lineContent, lineNumber) => {
-            const line = document.createElement('div');
-            line.innerHTML = lineContent;
-            this.el.appendChild(line);
+            const line = this.addLine(lineContent);
             
             line.addEventListener('mousedown', (ev) => {
-                this.cursorPosition = this.indexOfBeginningOfLine(lineNumber);
-                
-                while (this.el.getBoundingClientRect().left + this.getLeftPixelSize() < ev.clientX) {
-                    this.moveCaretForward();
-                }
-                
-                this.reloadCursorPosition();
-            });
-            
-        });
+                caret.moveTo(this.el.getBoundingClientRect().left, line.top);
+                this.cursorPosition = this.getBeginningOfLine(lineNumber);
 
+                while (caret.x < ev.clientX) {
+                    this.moveCaretForward();
+                    this.reloadCursorPosition();
+                }   
+            });
+        });
     }
-    private indexOfBeginningOfLine(line: number): number {
-        const endingIndices = this.getLineEndingIndices();
-        console.log(line);
+
+    private getBeginningOfLine(lineNumber: number): number {
+        return this.getLineRanges()[lineNumber].begin;
+    }
+
+    private getLineContentArrayFromText(content: string) {
+        const outArray = [''];
+        let lineBegin = 0;
         
-        return endingIndices[line - 1] ?? 0;
+        for (let i = 0; i < content.length; i++) {
+            if (content[i] === '\n') {
+                outArray.push('\n');
+            } else {
+                if (++lineBegin <= 80 && outArray[outArray.length - 1] !== '\n') {
+                    outArray[outArray.length - 1] += content[i];
+                } else {
+                    lineBegin = 0;
+                    outArray.push(content[i]);
+                }
+            }
+        }
+
+        return outArray;
+    }
+
+    private addLine(text: string): TextEditorLine {
+        const line = new TextEditorLine(text);
+        this.addChild(line);
+        return line;
     }
 
     private clearContent() {
