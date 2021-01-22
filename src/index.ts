@@ -1,5 +1,7 @@
 import { join } from "path";
+import { ClassContentController } from "./controllers/ClassContentController";
 import { ClassController } from "./controllers/ClassController";
+import { ClassContentModel } from "./models/ClassContentModel";
 import { ClassModel } from "./models/ClassModel";
 import { AssignmentView } from "./view/AssignmentView";
 import { ClassEditorView } from "./view/ClassEditorView";
@@ -31,9 +33,9 @@ function test() {
     sview2.addAssignment(assignment3);
     sview2.addAssignment(assignment4);
 
-    const classModel = ClassModel.fromPath(0);
+    const classModel = ClassContentModel.fromPath(0);
     const classView = new ClassEditorView('notes');
-    const controller = new ClassController(classModel, classView);
+    const controller = new ClassContentController(classModel, classView);
     classView.attachToHTMLElement(document.getElementById('class-notes')!);
 }
 function init() {
