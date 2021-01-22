@@ -3,6 +3,10 @@ import { View } from "../view/View";
 
 
 export abstract class Controller<M extends DataModel, V extends View<any>> {
-    public readonly abstract model: M;
-    public readonly abstract view: V;
+    public readonly model: M;
+    public readonly view: V;
+    constructor(model: M, view: V) {
+        this.model = model;
+        this.view = view;
+    }
 }
