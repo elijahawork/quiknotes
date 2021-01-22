@@ -1,4 +1,7 @@
 import { app, BrowserWindow } from 'electron';
+import { install }from 'source-map-support';
+
+install();
 
 function createWindow() {
     const win = new BrowserWindow({
