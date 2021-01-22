@@ -13,8 +13,6 @@ export class Caret extends View<'div'> {
         this.el.style.height = `${px}px`;
     }
     get x() {
-        console.log(this.el.getBoundingClientRect());
-        
         return this.el.getBoundingClientRect().left; 
     }
     get y() {

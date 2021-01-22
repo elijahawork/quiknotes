@@ -41,6 +41,7 @@ export class ClassEditorView extends View<'div'> {
             const begin = ranges[i - 1].end;
             const end = begin + line.length;
             const range: Range = { begin, end };
+            
             ranges.push(range);
         }
         
@@ -87,14 +88,17 @@ export class ClassEditorView extends View<'div'> {
     }
     
     private moveCaretDown() {
-        this.cursorPosition += LINE_CHAR_LIMIT;
-        const end = this.getLineRanges()[this.currentLine].end;
+        const lineRanges = this.getLineRanges();
+        let positionRelativeToBeginning = this.cursorPosition - lineRanges[this.currentLine].begin;
         
-        if (this.cursorPosition > end)
-            this.cursorPosition -= LINE_CHAR_LIMIT;
+        this.cursorPosition = lineRanges[this.currentLine + 1].begin + positionRelativeToBeginning;
+        this.cursorPosition = Math.min(this.cursorPosition, lineRanges[this.currentLine + 1].end);
     }
     private moveCaretUp() {
-        this.cursorPosition -= LINE_CHAR_LIMIT;
+        const lineRanges = this.getLineRanges();
+        let positionRelativeToBeginning = this.cursorPosition - lineRanges[this.currentLine].begin;
+        
+        this.cursorPosition = lineRanges[this.currentLine - 1].begin + positionRelativeToBeginning;
         this.cursorPosition = Math.max(this.cursorPosition, 0);
     }
     private moveCaretForward() {
@@ -134,25 +138,27 @@ export class ClassEditorView extends View<'div'> {
     }
     set content(content: string) {
         const lineContentArray = this.getLineContentArrayFromText(content);
-        console.log({lineContentArray});
         
         this.clearContent();
         
         this.loadLinesIntoView(lineContentArray);
     }
     private loadLinesIntoView(lines: string[]) {
-        const caret = this.caret;
+        const self = this;
+        const caret = self.caret;
         lines.forEach((lineContent, lineNumber) => {
-            const line = this.addLine(lineContent);
+            const line = self.addLine(lineContent);
             
             line.addEventListener('mousedown', (ev) => {
-                caret.moveTo(this.el.getBoundingClientRect().left, line.top);
-                this.cursorPosition = this.getBeginningOfLine(lineNumber);
+                caret.moveTo(self.el.getBoundingClientRect().left, line.top);
+                this.cursorPosition = self.getBeginningOfLine(lineNumber);
+                const lineIndex = self.getLineRanges();
 
-                while (caret.x < ev.clientX) {
-                    this.moveCaretForward();
-                    this.reloadCursorPosition();
-                }   
+                while (self.cursorPosition < lineIndex[lineNumber].end && caret.x < ev.clientX) {
+                    self.moveCaretForward();
+                    self.reloadCursorPosition();
+                }
+                this.reloadCursorPosition();
             });
         });
     }
@@ -167,7 +173,12 @@ export class ClassEditorView extends View<'div'> {
         
         for (let i = 0; i < content.length; i++) {
             if (content[i] === '\n') {
-                outArray.push('\n');
+                if (outArray[outArray.length - 1] === '\n') {
+                    outArray.push('\n')
+                } else {
+                    outArray[outArray.length - 1] += content[i];
+                }
+                outArray.push('');
             } else {
                 if (++lineBegin <= 80 && outArray[outArray.length - 1] !== '\n') {
                     outArray[outArray.length - 1] += content[i];
