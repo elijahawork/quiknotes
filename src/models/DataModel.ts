@@ -16,7 +16,7 @@ export abstract class DataModel {
         fileMap.set(this.id, this);
     }
 
-    public get filePath() {
+    public filePath() {
         return join(__PROJ_NAME, this.id.toString());
     }
     
