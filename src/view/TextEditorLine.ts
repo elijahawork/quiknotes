@@ -11,4 +11,8 @@ export class TextEditorLine extends View<'div'> {
         super('div', id, 'text-editor-line')
         this.el.textContent = text;
     }
+
+    get top() {
+        return this.el.getBoundingClientRect().top;
+    }
 }
