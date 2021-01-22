@@ -1,4 +1,6 @@
 import fs from 'fs';
+import { join } from 'path';
+import { __PROJ_NAME } from '..';
 
 const fileMap = new Map<number, DataModel>();
 export abstract class DataModel {
@@ -14,6 +16,10 @@ export abstract class DataModel {
         fileMap.set(this.id, this);
     }
 
+    public get filePath() {
+        return join(__PROJ_NAME, this.id.toString());
+    }
+    
     static getById(id: number): DataModel | null {
         if (fileMap.has(id))
             return fileMap.get(id)!;
