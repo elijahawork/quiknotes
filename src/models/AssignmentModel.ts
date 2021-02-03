@@ -1,22 +1,20 @@
-import { AssignmentView } from "../view/AssignmentView";
-import { DataModel } from "./DataModel";
+import { IAssignmentModel } from "../interfaces/IAssignmentModel";
+import { ISite } from "../interfaces/ISite";
+import { SerializedAssignmentModel } from "../types/SerializedAssignmentModel";
 
-export class AssignmentModel extends DataModel {
-    name: string;
-    date: Date;
+export class AssignmentModel implements IAssignmentModel {
+    readonly name: string;
+    readonly site: ISite;
+    readonly date: Date;
 
-    constructor(name: string, duedate: Date, id?: number) {
-        super(id);
+    constructor(name: string, site: ISite, date: Date) {
         this.name = name;
-        this.date = duedate;
+        this.site = site;
+        this.date = date;
     }
-
-    public static from(str: string): AssignmentModel {
-        const obj = JSON.parse(str) as { name: string; date: string; };
-        const date = new Date(obj.date);
-        return new AssignmentModel(obj.name, date);
-    }
-    public stringify() {
-        return JSON.stringify(this);
+    static deserialize(assignment: string) {
+        const { name, site, date } = JSON.parse(assignment) as SerializedAssignmentModel;
+        const parsedDate = new Date(date);
+        return new AssignmentModel(name, site as unknown as ISite, parsedDate);
     }
 }
