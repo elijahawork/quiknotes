@@ -1,4 +1,4 @@
 export interface ISite {
-    name: string;
-    url: string;
+  name: string;
+  url: string;
 }
