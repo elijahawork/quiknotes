@@ -21,7 +21,6 @@ export class ClassModel implements Iterable<AssignmentModel> {
   }
   static getClassModels(): ClassModel[] {
     const nameList = this.getClassNameList();
-    console.log(nameList);
 
     const classes: ClassModel[] = [];
 
