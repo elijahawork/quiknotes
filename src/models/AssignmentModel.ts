@@ -1,6 +1,6 @@
 import { IAssignmentSchema } from '../schema/IAssignmentSchema';
+import { ISerializedAssignmentSchema } from '../schema/ISerializedAssignmentSchema';
 import { ISiteSchema } from '../schema/ISiteSchema';
-import { SerializedAssignmentSchema } from '../types/SerializedAssignmentSchema';
 
 export class AssignmentModel implements IAssignmentSchema {
   readonly name: string;
@@ -15,7 +15,7 @@ export class AssignmentModel implements IAssignmentSchema {
   static deserialize(assignment: string) {
     const { name, site, date } = JSON.parse(
       assignment
-    ) as SerializedAssignmentSchema;
+    ) as ISerializedAssignmentSchema;
     const parsedDate = new Date(date);
     return new AssignmentModel(
       name,
