@@ -1,4 +1,4 @@
-export interface ISite {
+export interface ISiteSchema {
   name: string;
   url: string;
 }
