@@ -4,4 +4,4 @@ export interface ISerializedAssignmentSchema {
   name: string;
   site: ISiteSchema;
   date: string;
-};
+}
