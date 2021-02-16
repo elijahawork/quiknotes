@@ -128,3 +128,12 @@ button {
     height: 100%;
     white-space: pre;
 }
+#add-source:hover {
+    background: linear-gradient(rgb(150, 150, 150), rgb(250, 250, 250));
+}
+.new-assignment:hover {
+    background: linear-gradient(rgb(150, 150, 150), rgb(250, 250, 250));
+}
+.assignment-source {
+    font-size: 15px !important;
+}
