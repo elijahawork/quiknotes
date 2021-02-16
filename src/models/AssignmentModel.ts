@@ -1,13 +1,13 @@
-import { IAssignmentModel } from '../interfaces/IAssignmentModel';
-import { ISite } from '../interfaces/ISite';
-import { SerializedAssignmentModel } from '../types/SerializedAssignmentModel';
+import { IAssignmentSchema } from '../schema/IAssignmentSchema';
+import { ISiteSchema } from '../schema/ISiteSchema';
+import { SerializedAssignmentSchema } from '../types/SerializedAssignmentSchema';
 
-export class AssignmentModel implements IAssignmentModel {
+export class AssignmentModel implements IAssignmentSchema {
   readonly name: string;
-  readonly site: ISite;
+  readonly site: ISiteSchema;
   readonly date: Date;
 
-  constructor(name: string, site: ISite, date: Date) {
+  constructor(name: string, site: ISiteSchema, date: Date) {
     this.name = name;
     this.site = site;
     this.date = date;
@@ -15,8 +15,12 @@ export class AssignmentModel implements IAssignmentModel {
   static deserialize(assignment: string) {
     const { name, site, date } = JSON.parse(
       assignment
-    ) as SerializedAssignmentModel;
+    ) as SerializedAssignmentSchema;
     const parsedDate = new Date(date);
-    return new AssignmentModel(name, (site as unknown) as ISite, parsedDate);
+    return new AssignmentModel(
+      name,
+      (site as unknown) as ISiteSchema,
+      parsedDate
+    );
   }
 }
