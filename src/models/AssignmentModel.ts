@@ -1,4 +1,3 @@
-import { AssignmentView } from "../view/AssignmentView";
 import { DataModel } from "./DataModel";
 
 export class AssignmentModel extends DataModel {
