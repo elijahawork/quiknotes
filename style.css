@@ -1,130 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
-html, body {
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-    overflow-y: hidden;
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  overflow-y: hidden;
 }
-body {
-    display: grid;
-    grid-template-columns: 25% 50% 25%;
-    grid-template-rows: 100%;
+#root {
+  width: 100%;
+  height: 100%;
 }
-#classes {
-    background: #2E2D2D;
-    display: grid;
-    grid-template-rows: 10% 90%;
-    justify-items: center;
+#app {
+  width: 100%;
+  height: 100%;
+  border: 1px solid black;
+  display: grid;
+  grid-template-columns: 20% 60% 20%;
 }
-#class-header {
-    color: white;
-    font-family: 'Roboto', sans-serif;
-    display: inline-flex;
-}
-#class-h {
-    font-size: 29px;
-    font-weight: 300;
-}
-#class-list {
-    list-style-type: none;
-    background: #393939;
-    color: white;
-    width: 80%;
-    padding: 0;
-}
-.class-wrapper {
-    text-align: center;
-    font-family: 'Roboto', sans-serif;
-    font-weight: 100;
-    padding-top: 45px;
-    padding-bottom: 45px;
-}
-.class-wrapper#open {
-    background: #2E2D2D;
-}
-button {
-    all: unset;
-}
-#notes {
-    width: 100%;
-    height: 80%;
-    border: 1px solid black;
-}
-#notes h1, #notes h2, #notes h3, #notes h4 {
-    color: rgb(230, 230, 230);
-    font-family: 'Roboto', sans-serif;
-    font-weight: normal;
-    text-align: center;
-}
-#notes p {
-    text-indent: 3%;
-    width: 80%;
-    margin-left: 10%;
-}
-#class-assignments {
-    border: 1px solid black;
-    height: 50%;
-    background-color: #FAFAFA;
-}
-#assignment-header * {
-    all: unset;
-}
-#assignment-header {
-    font-size: 20px;
-    font-family: 'Roboto', sans-serif;
-    text-align: center;
-    padding: 1em;
-}
-.assignment-source {
-    display: block;
-    padding: 0;
-    text-align: center;
-}
-.assignment-source-header * {
-    all : unset;
-    font-size: 30px;
-    text-emphasis: center;
-    font-family: 'Roboto', sans-serif;
-}
-.assignments {
-    padding: 0;
-}
-.assignment {
-    display: block;
-    display: flex;
-    font-size: 13px;
-}
-.assignment-name {
-    width: 50%;
-}
-.assignment-due {
-    font-weight: bold;
-    font-family: 'Roboto', sans-serif;
-}
-.assignment.soon .assignment-due{
-    color: red;
-}
-.assignment.far .assignment-due {
-    color: green;
-}
-.assignment.done .assignment-due {
-    color: blue;
-}
-.caret {
-    width: 1px;
-    height: 12px;
-    background-color: black;
-    position: absolute;
-}
-.size-tester {
-    width: fit-content;
-    height: fit-content;
-    white-space: pre;
-}
-.class-editor-view {
-    width: 100%;
-    height: 100%;
-    white-space: pre;
+.pane {
+  width: 100%;
+  height: 100%;
+  border: 1px solid black;
 }
