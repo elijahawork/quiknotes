@@ -6,10 +6,10 @@ function SchemaField<Schema>(
 ) {
   Object.defineProperty(details.constructor.prototype, fieldName, {
     get() {
-      return this.model[fieldName];
+      return this.schema[fieldName];
     },
     set(v) {
-      this.model[fieldName] = v;
+      this.schema[fieldName] = v;
       this.updateFile();
     },
   });
