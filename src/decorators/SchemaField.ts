@@ -1,6 +1,9 @@
-import ISchema from "../schema/ISchema";
+import { DataModel } from '../models/DataModel';
 
-function SchemaField<Schema extends ISchema, Class extends Schema & { updateFile: () => any }>(details: Class, fieldName: keyof Schema) {
+function SchemaField<Schema>(
+  details: DataModel<Schema>,
+  fieldName: keyof Schema
+) {
   Object.defineProperty(details.constructor.prototype, fieldName, {
     get() {
       return this.model[fieldName];
