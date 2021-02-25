@@ -1,53 +1,65 @@
-import { readFileSync, writeFile, writeFileSync } from "fs";
-import { join } from "path";
-import { __PROJ_NAME } from "..";
-import { DataModel } from "./DataModel";
+import { readFileSync, writeFileSync } from 'fs';
+import { join } from 'path';
+import { __PROJ_NAME } from '..';
+import SchemaField from '../decorators/SchemaField';
+import IClassSchema from '../schema/IClassSchema';
+import { DataModel } from './DataModel';
 
-export class ClassModel extends DataModel {
-    name: string;
-    assignments: number[] = [];
-    content: string;
+export class ClassModel extends DataModel<IClassSchema> {
+  private static EXT = '.cls';
 
-    constructor(name: string, assignments: number[], content: string, id?: number) {
-        super(id);
-        this.name = name;
-        this.assignments = assignments;
-        this.content = content;
-    }
+  public updateFile(): void {
+    console.log('file updating');
+    
+    const path = join(__dirname, '..', '..', 'protected', this.id.toString());
+    console.log({path});
+    
+    writeFileSync(
+      path + ClassModel.EXT,
+      this.stringify()
+    );
+  }
 
-    public stringify() {
-        const { name, assignments } = this;
-        return JSON.stringify({ name, assignments });
-    }
-    public write() {
-        this.writeMetadata();
-        this.writeContent();
-    }
-    public writeMetadata() {
-        const path = join(__PROJ_NAME, this.id.toString());
-        writeFile(path, this.stringify(), (err) => {
-            if (err)
-                throw err;
-        });
-    }
-    public writeContent() {
-        const path = join(__PROJ_NAME, this.id.toString() + 'c');
-        writeFile(path, this.content, (err) => {
-            if (err)
-                throw err;
-        });
-    }
-    public static fromPath(id: number) {
-        const path = join(__PROJ_NAME, id.toString());
-        const pathc = join(__PROJ_NAME, id.toString() + 'c');
-        
-        const md = readFileSync(path, 'utf-8')
-        const content = readFileSync(pathc, 'utf-8');
+  schema: IClassSchema;
 
-        const mdJson = JSON.parse(md);
+  @SchemaField
+  id!: number;
 
-        const { name, assignments } = mdJson;
+  @SchemaField
+  name!: string;
 
-        return new ClassModel(name, assignments, content, id);
-    }
+  @SchemaField
+  assignments!: number[];
+
+  @SchemaField
+  content!: string;
+
+  constructor(
+    name: string,
+    assignments: number[],
+    content: string,
+    id: number = DataModel.generateUniqueID()
+  ) {
+    super(id);
+    this.schema = {
+      id,
+      name,
+      assignments,
+      content,
+    };
+    this.updateFile();
+  }
+
+  public stringify() {
+    const name = this.name;
+    const assignments = this.assignments;
+    const content = this.content;
+    return JSON.stringify({ name, assignments, content });
+  }
+  public static fromPath(id: number) {
+    const path = join(__PROJ_NAME, id.toString());
+    const meta = readFileSync(path, 'utf8');
+    const { assignments, content, name } = JSON.parse(meta) as IClassSchema;
+    return new ClassModel(name, assignments, content, id);
+  }
 }
