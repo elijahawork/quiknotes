@@ -1,12 +1,14 @@
+import Writable from '../interfaces/Writable';
 import ISchema from '../schema/ISchema';
 
 const fileMap = new Map<number, DataModel<any>>();
-export abstract class DataModel<Schema> {
+export abstract class DataModel<Schema> implements Writable {
   protected abstract schema: Schema;
 
   constructor(id: number) {
     fileMap.set(id, this);
   }
+  abstract updateFile(): void;
 
   public static generateUniqueID(id?: number) {
     if (id === undefined)
