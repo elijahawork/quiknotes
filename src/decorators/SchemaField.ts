@@ -1,6 +1,6 @@
 import ISchema from "../schema/ISchema";
 
-function SchemaField<T extends ISchema>(details: T, fieldName: keyof T) {
+function SchemaField<Schema extends ISchema, Class extends Schema>(details: Class, fieldName: keyof Schema) {
   Object.defineProperty(details.constructor.prototype, fieldName, {
     get() {
       return this.model[fieldName];
