@@ -1,7 +1,7 @@
 import ISchema from "./ISchema";
 
 interface IAssignmentSchema extends ISchema {
-  name: string;
+  assignmentName: string;
   dueDate: Date;
 }
 

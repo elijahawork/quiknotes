@@ -1,4 +1,6 @@
-interface IClassSchema {
+import ISchema from "./ISchema";
+
+interface IClassSchema extends ISchema {
   name: string;
   assignments: number[];
   content: string;
