@@ -10,14 +10,8 @@ export class ClassModel extends DataModel<IClassSchema> {
 
   public updateFile(): void {
     console.log('file updating');
-    
-    const path = join(__dirname, '..', '..', 'protected', this.id.toString());
-    console.log({path});
-    
-    writeFileSync(
-      path + ClassModel.EXT,
-      this.stringify()
-    );
+
+    writeFileSync(__PROJ_NAME + this.id + ClassModel.EXT, this.stringify());
   }
 
   schema: IClassSchema;

@@ -1,5 +1,5 @@
 import { writeFileSync } from 'fs';
-import { join } from 'path';
+import { __PROJ_NAME } from '..';
 import SchemaField from '../decorators/SchemaField';
 import Writable from '../interfaces/Writable';
 import IAssignmentSchema from '../schema/IAssignmentSchema';
@@ -10,7 +10,7 @@ export class AssignmentModel
   implements IAssignmentSchema, Writable {
   protected schema: IAssignmentSchema;
   private static EXT = '.asmnt';
-  
+
   @SchemaField
   id!: number;
 
@@ -40,7 +40,7 @@ export class AssignmentModel
   }
   public updateFile() {
     writeFileSync(
-      join(__dirname, '..', 'protected') + AssignmentModel.EXT,
+      __PROJ_NAME + this.id + AssignmentModel.EXT,
       this.stringify()
     );
   }
