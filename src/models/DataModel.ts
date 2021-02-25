@@ -14,8 +14,9 @@ export abstract class DataModel<Schema> implements Writable {
     if (id === undefined)
       // creates a unique ID. May hypothetically run into a bug if the math doesn't work out but IDK yet
       while (
-        !fileMap.has((id = Math.floor(Math.random() * (fileMap.size + 1) * 2)))
+        fileMap.has((id = Math.floor(Math.random() * (fileMap.size + 1) * 2)))
       );
+
     return id;
   }
 
