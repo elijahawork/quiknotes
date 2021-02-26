@@ -1,8 +1,7 @@
-import { readFileSync, writeFile, writeFileSync } from 'fs';
+import { readFileSync, writeFile } from 'fs';
 import { join } from 'path';
 import { __PROJ_NAME } from '..';
 import SchemaField from '../decorators/SchemaField';
-import IAssignmentSchema from '../schema/IAssignmentSchema';
 import IClassSchema from '../schema/IClassSchema';
 import { AssignmentModel } from './AssignmentModel';
 import { DataModel } from './DataModel';
