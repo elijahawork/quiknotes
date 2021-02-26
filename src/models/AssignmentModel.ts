@@ -45,9 +45,8 @@ export class AssignmentModel
     return AssignmentModel.from(meta);
   }
   public updateFile() {
-    writeFileSync(
-      __PROJ_NAME + this.id + AssignmentModel.EXT,
-      this.stringify()
-    );
+    const path = join(__PROJ_NAME, this.id + AssignmentModel.EXT);
+
+    writeFileSync(path, this.stringify());
   }
 }

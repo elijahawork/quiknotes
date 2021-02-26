@@ -9,9 +9,9 @@ export class ClassModel extends DataModel<IClassSchema> {
   public static readonly EXT = '.cls';
 
   public updateFile(): void {
-    console.log('file updating');
-
-    writeFileSync(__PROJ_NAME + this.id + ClassModel.EXT, this.stringify());
+    console.log(`Updating file ${this.id}, "${this.name}"`);
+    const path = join(__PROJ_NAME, this.id + ClassModel.EXT);
+    writeFileSync(path, this.stringify());
   }
 
   schema: IClassSchema;
