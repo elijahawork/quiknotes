@@ -2,7 +2,9 @@ import { readFileSync, writeFile, writeFileSync } from 'fs';
 import { join } from 'path';
 import { __PROJ_NAME } from '..';
 import SchemaField from '../decorators/SchemaField';
+import IAssignmentSchema from '../schema/IAssignmentSchema';
 import IClassSchema from '../schema/IClassSchema';
+import { AssignmentModel } from './AssignmentModel';
 import { DataModel } from './DataModel';
 
 export class ClassModel extends DataModel<IClassSchema> {
@@ -62,5 +64,9 @@ export class ClassModel extends DataModel<IClassSchema> {
   private static from(meta: string) {
     const { assignments, content, name, id } = JSON.parse(meta) as IClassSchema;
     return new ClassModel(name, assignments, content, id);
+  }
+
+  public addAssignment(newAssignment: AssignmentModel) {
+    this.assignments = [...this.assignments, newAssignment.id];
   }
 }
