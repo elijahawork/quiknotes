@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFile, writeFileSync } from 'fs';
 import { join } from 'path';
 import { __PROJ_NAME } from '..';
 import SchemaField from '../decorators/SchemaField';
@@ -11,7 +11,9 @@ export class ClassModel extends DataModel<IClassSchema> {
   public updateFile(): void {
     console.log(`Updating file ${this.id}, "${this.name}"`);
     const path = join(__PROJ_NAME, this.id + ClassModel.EXT);
-    writeFileSync(path, this.stringify());
+    writeFile(path, this.stringify(), (err) => {
+      if (err) console.error(err);
+    });
   }
 
   schema: IClassSchema;
@@ -48,7 +50,8 @@ export class ClassModel extends DataModel<IClassSchema> {
     const name = this.name;
     const assignments = this.assignments;
     const content = this.content;
-    return JSON.stringify({ name, assignments, content });
+    const id = this.id;
+    return JSON.stringify({ name, assignments, content, id });
   }
   public static fromPath(id: number) {
     const path = join(__PROJ_NAME, id + ClassModel.EXT);
