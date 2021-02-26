@@ -51,9 +51,13 @@ export class ClassModel extends DataModel<IClassSchema> {
     return JSON.stringify({ name, assignments, content });
   }
   public static fromPath(id: number) {
-    const path = join(__PROJ_NAME, id.toString());
+    const path = join(__PROJ_NAME, id + ClassModel.EXT);
     const meta = readFileSync(path, 'utf8');
-    const { assignments, content, name } = JSON.parse(meta) as IClassSchema;
+    return ClassModel.from(meta);
+  }
+
+  private static from(meta: string) {
+    const { assignments, content, name, id } = JSON.parse(meta) as IClassSchema;
     return new ClassModel(name, assignments, content, id);
   }
 }

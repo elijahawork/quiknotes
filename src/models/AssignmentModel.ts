@@ -1,4 +1,5 @@
-import { writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
+import { join } from 'path';
 import { __PROJ_NAME } from '..';
 import SchemaField from '../decorators/SchemaField';
 import Writable from '../interfaces/Writable';
@@ -34,9 +35,14 @@ export class AssignmentModel
   }
 
   public static from(str: string): AssignmentModel {
-    const obj = JSON.parse(str) as { name: string; date: string };
-    const date = new Date(obj.date);
-    return new AssignmentModel(obj.name, date);
+    const obj = JSON.parse(str) as IAssignmentSchema;
+    const date = new Date(obj.dueDate);
+    return new AssignmentModel(obj.assignmentName, date, obj.id);
+  }
+  public static fromPath(id: number): AssignmentModel {
+    const path = join(__PROJ_NAME, id + AssignmentModel.EXT);
+    const meta = readFileSync(path, 'utf8');
+    return AssignmentModel.from(meta);
   }
   public updateFile() {
     writeFileSync(
