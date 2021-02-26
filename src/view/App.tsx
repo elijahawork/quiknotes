@@ -35,9 +35,8 @@ class App extends React.Component<AppProps, AppState> {
                   )
                 );
               }}
-            >
-              {this.state.modelOpen.content}
-            </textarea>
+              defaultValue={this.state.modelOpen.content}
+            ></textarea>
           ) : (
             <> </>
           )}
