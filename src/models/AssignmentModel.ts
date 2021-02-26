@@ -9,7 +9,7 @@ export class AssignmentModel
   extends DataModel<IAssignmentSchema>
   implements IAssignmentSchema, Writable {
   protected schema: IAssignmentSchema;
-  private static EXT = '.asmnt';
+  public static readonly EXT = '.asmnt';
 
   @SchemaField
   id!: number;

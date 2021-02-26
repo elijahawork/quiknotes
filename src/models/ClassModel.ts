@@ -6,7 +6,7 @@ import IClassSchema from '../schema/IClassSchema';
 import { DataModel } from './DataModel';
 
 export class ClassModel extends DataModel<IClassSchema> {
-  private static EXT = '.cls';
+  public static readonly EXT = '.cls';
 
   public updateFile(): void {
     console.log('file updating');
