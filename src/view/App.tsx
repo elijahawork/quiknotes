@@ -26,7 +26,7 @@ class App extends React.Component<AppProps, AppState> {
           {this.state.modelOpen ? (
             <textarea
               ref={textarea}
-              onKeyPress={() => {
+              onChange={() => {
                 if (!this.state.modelOpen) return;
                 this.setState(
                   (prevState) => (
