@@ -1,20 +1,35 @@
-import { join } from 'path';
+import { readdirSync } from 'fs';
+import { join, parse } from 'path';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { ClassModel } from './models/ClassModel';
 import App from './view/App';
-export const __PROJ_NAME = join(__dirname, '..', '..', 'protected');
+export const __PROJ_NAME = join(__dirname, '..', 'protected');
 
 export const CLASS_LIST: ClassModel[] = [];
 
 const root = document.getElementById('root')!;
 
-function parseClassList() {}
+function parseClassList() {
+  const dir = readdirSync(__PROJ_NAME);
+  for (const file of dir) {
+    const { ext, name } = parse(file);
+
+    switch (ext) {
+      case ClassModel.EXT:
+        {
+          const classModel = ClassModel.fromPath(parseInt(name));
+          CLASS_LIST.push(classModel);
+        }
+        break;
+    }
+  }
+}
+
+export const app = (parseClassList(), (<App classes={CLASS_LIST} />));
 
 function test() {}
 function init() {
-  parseClassList();
-  const app = <App classes={CLASS_LIST} />;
   ReactDOM.render(app, root);
 }
 export function main() {
