@@ -67,5 +67,6 @@ export class ClassModel extends DataModel<IClassSchema> {
 
   public addAssignment(newAssignment: AssignmentModel) {
     this.assignments = [...this.assignments, newAssignment.id];
+    this.updateFile();
   }
 }
