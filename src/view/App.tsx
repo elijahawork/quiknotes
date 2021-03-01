@@ -41,7 +41,7 @@ class App extends React.Component<AppProps, AppState> {
             <> </>
           )}
         </div>
-        <Pane3 />
+        <Pane3 state={this.state} setState={this.setState} />
       </div>
     );
   }
