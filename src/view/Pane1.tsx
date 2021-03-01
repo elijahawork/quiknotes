@@ -1,6 +1,7 @@
 import React, { createRef } from 'react';
 import { ClassModel } from '../models/ClassModel';
 import { AppProps, AppState } from './App';
+import ClassButton from './ClassButton';
 
 type Pane1Props = {
   classes: ClassModel[];
@@ -38,7 +39,7 @@ class Pane1 extends React.Component<Pane1Props, Pane1State> {
                 classes: [
                   ...prevState.classes,
                   new ClassModel(inp.current!.value, [], ''),
-                ]
+                ],
               }));
             }}
           >
@@ -48,14 +49,12 @@ class Pane1 extends React.Component<Pane1Props, Pane1State> {
         <ul>
           {this.state.classes.map((cModel, key) => {
             return (
-              <li key = { key }>
-                <button key = { key + 1 }
-                  onClick={() => {
-                    this.props.setState({ modelOpen: cModel });
-                  }}
-                >
-                  {cModel.name}
-                </button>
+              <li key={key}>
+                <ClassButton
+                  cModel={cModel}
+                  setState={this.props.setState}
+                  key={key}
+                />
               </li>
             );
           })}
