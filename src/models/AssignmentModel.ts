@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, unlink, writeFileSync } from 'fs';
 import { join } from 'path';
 import { __PROJ_NAME } from '..';
 import SchemaField from '../decorators/SchemaField';
@@ -11,7 +11,7 @@ export class AssignmentModel
   implements IAssignmentSchema, Writable {
   protected schema: IAssignmentSchema;
   public static readonly EXT = '.asmnt';
-
+  private readonly path: string;
   @SchemaField
   id!: number;
 
@@ -32,6 +32,8 @@ export class AssignmentModel
       assignmentName,
       dueDate,
     };
+    this.path = join(__PROJ_NAME, this.id + AssignmentModel.EXT);
+    this.updateFile();
   }
 
   public static from(str: string): AssignmentModel {
@@ -45,8 +47,11 @@ export class AssignmentModel
     return AssignmentModel.from(meta);
   }
   public updateFile() {
-    const path = join(__PROJ_NAME, this.id + AssignmentModel.EXT);
-
-    writeFileSync(path, this.stringify());
+    writeFileSync(this.path, this.stringify());
+  }
+  public deleteFile() {
+    unlink(this.path, (err) => {
+      if (err) console.error(err);
+    });
   }
 }
